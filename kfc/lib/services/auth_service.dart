@@ -10,7 +10,7 @@ class AuthService {
   static Future<NguoiDung?> getUserData(String uid) async {
     try {
       print('Đang lấy thông tin user từ Firestore: $uid');
-      
+
       DocumentSnapshot doc = await _firestore
           .collection('users')
           .doc(uid)
@@ -21,11 +21,11 @@ class AuthService {
               throw Exception('Timeout khi lấy dữ liệu từ Firestore');
             },
           );
-      
+
       if (doc.exists) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         print('Dữ liệu user từ Firestore: $data');
-        
+
         return NguoiDung.fromMap(data);
       } else {
         print('Không tìm thấy document user trong Firestore');
@@ -40,7 +40,7 @@ class AuthService {
   // Kiểm tra quyền và điều hướng
   static String getNavigationRoute(String? rule) {
     print('Xác định route dựa trên quyền: $rule');
-    
+
     switch (rule?.toLowerCase()) {
       case 'admin':
         print('Điều hướng đến trang admin');

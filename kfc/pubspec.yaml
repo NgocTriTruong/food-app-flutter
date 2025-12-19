@@ -39,8 +39,14 @@ dependencies:
   webview_flutter: ^4.8.0
   crypto: ^3.0.5
   webview_flutter_android: ^3.16.4
+  # ================= NETWORK (Spring Boot) =================
+  dio: ^5.4.0
+  retrofit: ^4.1.0
+  json_annotation: ^4.9.0
   # Tiện ích
   shared_preferences: ^2.1.2
+  flutter_secure_storage: ^9.0.0  # Thêm dòng này vào
+
   image_picker: ^0.8.9
   url_launcher: ^6.1.11
   fl_chart: ^1.0.0
@@ -55,6 +61,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+
+  build_runner: ^2.4.8
+  retrofit_generator: ^8.1.0
+  json_serializable: ^6.8.0
+
 
 flutter:
   uses-material-design: true
