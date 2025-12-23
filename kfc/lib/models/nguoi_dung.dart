@@ -34,6 +34,25 @@ class NguoiDung {
       'rule': rule,
     };
   }
+  factory NguoiDung.fromJson(Map<String, dynamic> json) {
+    return NguoiDung(
+      id: json['id']?.toString() ?? '',
+      ten: json['ten'] ?? '',
+      email: json['email'] ?? '',
+      soDienThoai: json['soDienThoai'] ?? '',
+      rule: json['rule'] ?? 'user',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'ten': ten,
+      'email': email,
+      'soDienThoai': soDienThoai,
+      'rule': rule,
+    };
+  }
 
   // Kiểm tra có phải admin không
   bool get isAdmin => rule == 'admin';

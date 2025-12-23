@@ -20,7 +20,7 @@ class DioClient{
           final token = await _storage.read(key: "token");
             if(token != null){
               options.headers['Authorization'] = 'Bearer $token';
-                  
+
             }
             handler.next(options);
           }
@@ -30,3 +30,4 @@ class DioClient{
     return dio;
   }
 }
+
