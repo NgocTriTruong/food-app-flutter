@@ -21,7 +21,7 @@ class DanhGia {
 
   factory DanhGia.fromJson(Map<String, dynamic> json) {
     print('🔍 Parsing DanhGia từ JSON: $json');
-  
+
     final danhGia = DanhGia(
       id: json['id']?.toString() ?? '',
       sanPhamId: json['sanPhamId']?.toString() ?? '',
@@ -30,11 +30,11 @@ class DanhGia {
       soSao: _parseToInt(json['soSao'], defaultValue: 5),
       binhLuan: json['binhLuan']?.toString() ?? '',
       ngayTao: _parseToString(json['ngayTao']),
-      hinhAnh: json['hinhAnh'] != null 
-          ? List<String>.from(json['hinhAnh']) 
+      hinhAnh: json['hinhAnh'] != null
+          ? List<String>.from(json['hinhAnh'])
           : null,
     );
-    
+
     print('✅ Parsed thành công: ${danhGia.tenNguoiDung}, ${danhGia.soSao} sao');
     return danhGia;
   }
@@ -78,7 +78,7 @@ class DanhGia {
       final dateTime = DateTime.parse(ngayTao);
       final now = DateTime.now();
       final difference = now.difference(dateTime);
-      
+
       if (difference.inDays > 0) {
         return '${difference.inDays} ngày trước';
       } else if (difference.inHours > 0) {
@@ -128,6 +128,17 @@ class ThongKeDanhGia {
     required this.phanBoSao,
   });
 
+  // --- HÀM FROMJSON MỚI THÊM VÀO ---
+  factory ThongKeDanhGia.fromJson(Map<String, dynamic> json) {
+    return ThongKeDanhGia(
+      diemTrungBinh: (json['diemTrungBinh'] as num?)?.toDouble() ?? 0.0,
+      tongSoDanhGia: json['tongSoDanhGia'] as int? ?? 0,
+      phanBoSao: (json['phanBoSao'] as Map<String, dynamic>?)?.map(
+            (key, value) => MapEntry(int.parse(key), value as int),
+      ) ?? {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
+    );
+  }
+
   factory ThongKeDanhGia.fromDanhSachDanhGia(List<DanhGia> danhSachDanhGia) {
     if (danhSachDanhGia.isEmpty) {
       return ThongKeDanhGia(
@@ -155,7 +166,7 @@ class ThongKeDanhGia {
   }
 
   String get diemTrungBinhFormatted => diemTrungBinh.toStringAsFixed(1);
-  
+
   String get tongSoDanhGiaFormatted {
     if (tongSoDanhGia >= 1000) {
       return '${(tongSoDanhGia / 1000).toStringAsFixed(1)}k';

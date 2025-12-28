@@ -1,29 +1,46 @@
-import 'package:kfc/network/dio_client.dart'; // File Dio bạn đã gửi
-import 'package:kfc/api/auth_api.dart'; // File interface ở bước 2
+import 'package:kfc/network/dio_client.dart';
+import 'package:kfc/api/auth_api.dart';
 import 'package:kfc/models/nguoi_dung.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthService {
   static final _storage = const FlutterSecureStorage();
-  // Khởi tạo API client thông qua Dio đã cấu hình Interceptor
-  static final AuthApi _authApi = AuthApi(DioClient.dio());
 
-  // Lấy thông tin người dùng từ Spring Boot
-  static Future<NguoiDung?> getUserData(String uid) async {
+  // 🔐 Dùng khi CẦN token (app thật)
+  static final AuthApi _authApiAuth =
+  AuthApi(DioClient.dio(withAuth: true));
+
+  // 🌐 Dùng khi KHÔNG cần token (test / API public)
+  static final AuthApi _authApiNoAuth =
+  AuthApi(DioClient.dio(withAuth: false));
+
+  // =============================
+  // LẤY THÔNG TIN USER
+  // =============================
+  static Future<NguoiDung?> getUserData(
+      String uid, {
+        bool withAuth = true, // 👈 mặc định KHÔNG auth cho test
+      }) async {
     try {
       print('Đang lấy thông tin user từ Spring Boot: $uid');
-      final user = await _authApi.getUserData(uid);
-      return user;
+
+      final api = withAuth ? _authApiAuth : _authApiNoAuth;
+      return await api.getUserData(uid);
     } catch (e) {
-      print('Lỗi khi lấy thông tin người dùng: $e');
+      print('❌ Lỗi khi lấy thông tin người dùng: $e');
       return null;
     }
   }
 
-  // Cập nhật thông tin qua API
-  static Future<void> updateUserData(String uid, Map<String, dynamic> data) async {
+  // =============================
+  // CẬP NHẬT USER (CẦN AUTH)
+  // =============================
+  static Future<void> updateUserData(
+      String uid,
+      Map<String, dynamic> data,
+      ) async {
     try {
-      await _authApi.updateUserData(uid, data);
+      await _authApiAuth.updateUserData(uid, data);
       print('Cập nhật thông tin user thành công');
     } catch (e) {
       print('Lỗi cập nhật: $e');
@@ -31,7 +48,9 @@ class AuthService {
     }
   }
 
-  // Đăng xuất (Xóa token ở local)
+  // =============================
+  // ĐĂNG XUẤT
+  // =============================
   static Future<void> signOut() async {
     try {
       await _storage.delete(key: "token");
@@ -41,17 +60,23 @@ class AuthService {
     }
   }
 
-  // Kiểm tra trạng thái đăng nhập dựa trên Token hiện có
+  // =============================
+  // KIỂM TRA LOGIN
+  // =============================
   static Future<bool> isLoggedIn() async {
-    String? token = await _storage.read(key: "token");
-    return token != null;
+    final token = await _storage.read(key: "token");
+    return token != null && token.isNotEmpty;
   }
 
-  // Giữ nguyên logic điều hướng
+  // =============================
+  // ĐIỀU HƯỚNG
+  // =============================
   static String getNavigationRoute(String? rule) {
     switch (rule?.toLowerCase()) {
-      case 'admin': return '/admin';
-      default: return '/home';
+      case 'admin':
+        return '/admin';
+      default:
+        return '/home';
     }
   }
 }

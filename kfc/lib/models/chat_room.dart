@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart'; // Thêm import này
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatRoom {
   final String id;
@@ -24,6 +24,44 @@ class ChatRoom {
     this.isActive = true,
     this.unreadCount = 0,
   });
+
+  // --- HÀM JSON MỚI CHO RETROFIT ---
+
+  factory ChatRoom.fromJson(Map<String, dynamic> json) {
+    return ChatRoom(
+      id: json['id']?.toString() ?? '',
+      customerId: json['customerId']?.toString() ?? '',
+      customerName: json['customerName']?.toString() ?? '',
+      staffId: json['staffId']?.toString(),
+      staffName: json['staffName']?.toString(),
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'].toString())
+          : DateTime.now(),
+      lastMessageTime: json['lastMessageTime'] != null
+          ? DateTime.parse(json['lastMessageTime'].toString())
+          : DateTime.now(),
+      lastMessage: json['lastMessage']?.toString() ?? '',
+      isActive: json['isActive'] ?? true,
+      unreadCount: json['unreadCount'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'customerId': customerId,
+      'customerName': customerName,
+      'staffId': staffId,
+      'staffName': staffName,
+      'createdAt': createdAt.toIso8601String(),
+      'lastMessageTime': lastMessageTime.toIso8601String(),
+      'lastMessage': lastMessage,
+      'isActive': isActive,
+      'unreadCount': unreadCount,
+    };
+  }
+
+  // --- GIỮ NGUYÊN CÁC PHƯƠNG THỨC CŨ ---
 
   factory ChatRoom.fromMap(Map<String, dynamic> map, String id) {
     return ChatRoom(

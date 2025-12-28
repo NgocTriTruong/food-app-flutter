@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kfc/models/san_pham_gio_hang.dart';
 
 enum TrangThaiDonHang {
@@ -39,9 +38,11 @@ class DonHang {
     this.phuongThucThanhToan,
   });
 
-  factory DonHang.fromJson(Map<String, dynamic> json, String id) {
+  // --- 2 HÀM JSON MỚI CHO RETROFIT ---
+
+  factory DonHang.fromJson(Map<String, dynamic> json) {
     return DonHang(
-      id: id,
+      id: json['id']?.toString() ?? '', // Backend trả về ID trong body
       nguoiDungId: json['nguoiDungId']?.toString() ?? '',
       tenNguoiNhan: json['tenNguoiNhan']?.toString() ?? '',
       soDienThoai: json['soDienThoai']?.toString() ?? '',
@@ -56,6 +57,26 @@ class DonHang {
       phuongThucThanhToan: json['phuongThucThanhToan']?.toString(),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nguoiDungId': nguoiDungId,
+      'tenNguoiNhan': tenNguoiNhan,
+      'soDienThoai': soDienThoai,
+      'diaChi': diaChi,
+      'danhSachSanPham': danhSachSanPham.map((item) => item.toJson()).toList(),
+      'tongTien': tongTien,
+      'phiGiaoHang': phiGiaoHang,
+      'tongCong': tongCong,
+      'trangThai': _trangThaiToString(trangThai),
+      'thoiGianDat': thoiGianDat.toIso8601String(), // Dùng ISO string cho API thay vì Timestamp
+      'ghiChu': ghiChu,
+      'phuongThucThanhToan': phuongThucThanhToan,
+    };
+  }
+
+  // --- GIỮ NGUYÊN CÁC HÀM CŨ CỦA BẠN ---
 
   static List<SanPhamGioHang> _parseDanhSachSanPham(dynamic value) {
     if (value == null) return [];
@@ -96,9 +117,7 @@ class DonHang {
 
   static DateTime _parseDateTime(dynamic value) {
     if (value == null) return DateTime.now();
-    if (value is Timestamp) {
-      return value.toDate();
-    }
+    // Vẫn giữ kiểm tra Timestamp để không lỗi nếu bạn còn dùng Firebase chỗ khác
     if (value is String) {
       return DateTime.tryParse(value) ?? DateTime.now();
     }
@@ -106,23 +125,6 @@ class DonHang {
       return DateTime.fromMillisecondsSinceEpoch(value);
     }
     return DateTime.now();
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'nguoiDungId': nguoiDungId,
-      'tenNguoiNhan': tenNguoiNhan,
-      'soDienThoai': soDienThoai,
-      'diaChi': diaChi,
-      'danhSachSanPham': danhSachSanPham.map((item) => item.toJson()).toList(),
-      'tongTien': tongTien,
-      'phiGiaoHang': phiGiaoHang,
-      'tongCong': tongCong,
-      'trangThai': _trangThaiToString(trangThai),
-      'thoiGianDat': Timestamp.fromDate(thoiGianDat),
-      'ghiChu': ghiChu,
-      'phuongThucThanhToan': phuongThucThanhToan,
-    };
   }
 
   String _trangThaiToString(TrangThaiDonHang trangThai) {

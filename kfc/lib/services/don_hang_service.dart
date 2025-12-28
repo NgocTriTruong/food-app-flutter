@@ -26,7 +26,7 @@ class DonHangService {
           .get();
 
       List<DonHang> donHangList = snapshot.docs
-          .map((doc) => DonHang.fromJson(doc.data(), doc.id))
+          .map((doc) => DonHang.fromJson(doc.data()))
           .toList();
 
       // Sắp xếp theo thời gian đặt hàng (mới nhất trước)
@@ -44,7 +44,7 @@ class DonHangService {
     try {
       final doc = await _firestore.collection(_collection).doc(id).get();
       if (doc.exists) {
-        return DonHang.fromJson(doc.data()!, doc.id);
+        return DonHang.fromJson(doc.data()!);
       }
       return null;
     } catch (e) {
@@ -90,7 +90,7 @@ class DonHangService {
           .get();
 
       List<DonHang> donHangList = snapshot.docs
-          .map((doc) => DonHang.fromJson(doc.data(), doc.id))
+          .map((doc) => DonHang.fromJson(doc.data()))
           .toList();
 
       // Sắp xếp theo thời gian đặt hàng (mới nhất trước)
@@ -128,7 +128,7 @@ class DonHangService {
           .get();
 
       List<DonHang> donHangList = snapshot.docs
-          .map((doc) => DonHang.fromJson(doc.data(), doc.id))
+          .map((doc) => DonHang.fromJson(doc.data()))
           .toList();
 
       // Sắp xếp theo thời gian đặt hàng (mới nhất trước)
@@ -151,7 +151,7 @@ class DonHangService {
           .get();
 
       List<DonHang> donHangList = snapshot.docs
-          .map((doc) => DonHang.fromJson(doc.data(), doc.id))
+          .map((doc) => DonHang.fromJson(doc.data()))
           .toList();
 
       // Sắp xếp theo thời gian đặt hàng (mới nhất trước)
@@ -171,7 +171,7 @@ class DonHangService {
         .snapshots()
         .map((snapshot) {
       List<DonHang> donHangList = snapshot.docs
-          .map((doc) => DonHang.fromJson(doc.data(), doc.id))
+          .map((doc) => DonHang.fromJson(doc.data()))
           .toList();
 
       // Sắp xếp theo thời gian đặt hàng (mới nhất trước)
@@ -189,7 +189,7 @@ class DonHangService {
         .snapshots()
         .map((snapshot) {
       List<DonHang> donHangList = snapshot.docs
-          .map((doc) => DonHang.fromJson(doc.data(), doc.id))
+          .map((doc) => DonHang.fromJson(doc.data()))
           .toList();
 
       // Sắp xếp theo thời gian đặt hàng (mới nhất trước)
