@@ -4,10 +4,9 @@ import 'package:kfc/models/nguoi_dung.dart';
 
 part 'auth_api.g.dart';
 
-@RestApi(baseUrl: "/api")
+@RestApi(baseUrl: "")
 abstract class AuthApi {
   factory AuthApi(Dio dio) = _AuthApi;
-
   @GET("/users/{uid}")
   Future<NguoiDung> getUserData(@Path("uid") String uid);
 

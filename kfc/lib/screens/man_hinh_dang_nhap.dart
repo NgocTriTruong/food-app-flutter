@@ -1,10 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:kfc/services_fix/auth_service.dart';
 import 'package:kfc/theme/mau_sac.dart';
 import 'package:kfc/models/nguoi_dung.dart';
 import 'package:provider/provider.dart';
 import 'package:kfc/providers/nguoi_dung_provider.dart';
 import 'package:kfc/screens/man_hinh_dang_ky.dart';
-import 'package:kfc/services/auth_service.dart';
+// import 'package:kfc/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -91,7 +93,6 @@ class _ManHinhDangNhapState extends State<ManHinhDangNhap>
       return false;
     }
   }
-
   Future<void> _dangNhap() async {
     if (_formKey.currentState!.validate()) {
       try {
@@ -99,42 +100,38 @@ class _ManHinhDangNhapState extends State<ManHinhDangNhap>
           _dangXuLy = true;
         });
 
-        // Kiểm tra kết nối internet trước
+        // 1. Kiểm tra kết nối internet
         bool coInternet = await _kiemTraKetNoiInternet();
         if (!coInternet) {
           throw Exception('Không có kết nối internet');
         }
 
-        print('Bắt đầu đăng nhập với email: ${_emailController.text.trim()}');
+        print('Bắt đầu đăng nhập Spring Boot: ${_emailController.text.trim()}');
 
-        // Đăng nhập với Firebase Authentication
-        final userCredential = await FirebaseAuth.instance
-            .signInWithEmailAndPassword(
-              email: _emailController.text.trim(),
-              password: _matKhauController.text,
-            )
-            .timeout(
-              Duration(seconds: 30),
-              onTimeout: () {
-                throw Exception('Timeout - Kết nối quá chậm');
-              },
-            );
-
-        print('Đăng nhập thành công! UID: ${userCredential.user?.uid}');
-
-        // Lấy thông tin người dùng từ Firestore
-        final userData = await AuthService.getUserData(userCredential.user!.uid);
-        
+        // 2. Gọi hàm signIn từ AuthService (đã xử lý lưu Token/UID bên trong)
+        final userData = await AuthService.signIn(
+          _emailController.text.trim(),
+          _matKhauController.text,
+        ).timeout(
+          const Duration(seconds: 30),
+          onTimeout: () {
+            throw Exception('Kết nối server quá chậm, vui lòng thử lại');
+          },
+        );
+        print('hi');
+        // 3. Kiểm tra dữ liệu trả về
         if (userData == null) {
-          throw Exception('Không tìm thấy thông tin người dùng trong hệ thống');
+          throw Exception('Không tìm thấy thông tin người dùng');
         }
 
-        // Cập nhật Provider với thông tin từ Firestore
-        final nguoiDungProvider = Provider.of<NguoiDungProvider>(context, listen: false);
-        nguoiDungProvider.dangNhap(userData);
+        print('Đăng nhập thành công! UID: ${userData.id}');
 
-        // Hiển thị thông báo thành công
+        // 4. Cập nhật Provider (để các màn hình khác nhận được thông tin user)
         if (mounted) {
+          final nguoiDungProvider = Provider.of<NguoiDungProvider>(context, listen: false);
+          nguoiDungProvider.dangNhap(userData);
+
+          // Hiển thị thông báo chào mừng
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Row(
@@ -144,17 +141,14 @@ class _ManHinhDangNhapState extends State<ManHinhDangNhap>
                   Text('Chào mừng ${userData.ten} quay lại!'),
                 ],
               ),
-              backgroundColor: MauSac.xanhLa,
+              backgroundColor: Colors.green, // Dùng Colors nếu MauSac.xanhLa chưa định nghĩa
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           );
 
-          // Điều hướng dựa trên quyền
-          String route = AuthService.getNavigationRoute(userData.rule);
-          
-          // Hiển thị thông báo về quyền
-          if (userData.isAdmin) {
+          // 5. Kiểm tra quyền Admin và hiển thị thông báo (nếu cần)
+          if (userData.rule?.toLowerCase() == 'admin') {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Row(
@@ -166,63 +160,32 @@ class _ManHinhDangNhapState extends State<ManHinhDangNhap>
                 ),
                 backgroundColor: Colors.purple,
                 behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                duration: const Duration(seconds: 2),
               ),
             );
           }
 
-          // Điều hướng đến trang phù hợp
+          // 6. Điều hướng đến trang phù hợp dựa trên Role
+          String route = AuthService.getNavigationRoute(userData.rule);
           Navigator.pushNamedAndRemoveUntil(
             context,
             route,
-            (route) => false,
+                (route) => false,
           );
         }
-      } on FirebaseAuthException catch (e) {
-        print('FirebaseAuthException: ${e.code} - ${e.message}');
-        
-        String thongBaoLoi = 'Đã xảy ra lỗi khi đăng nhập.';
-        
-        switch (e.code) {
-          case 'user-not-found':
-            thongBaoLoi = 'Không tìm thấy tài khoản với email này.';
-            break;
-          case 'wrong-password':
-            thongBaoLoi = 'Mật khẩu không đúng.';
-            break;
-          case 'invalid-email':
-            thongBaoLoi = 'Email không hợp lệ.';
-            break;
-          case 'user-disabled':
-            thongBaoLoi = 'Tài khoản này đã bị vô hiệu hóa.';
-            break;
-          case 'too-many-requests':
-            thongBaoLoi = 'Quá nhiều yêu cầu đăng nhập. Vui lòng thử lại sau.';
-            break;
-          case 'network-request-failed':
-            thongBaoLoi = 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.';
-            break;
-          case 'invalid-credential':
-            thongBaoLoi = 'Email hoặc mật khẩu không đúng.';
-            break;
-          default:
-            thongBaoLoi = 'Lỗi: ${e.message ?? e.code}';
+
+      } on DioException catch (e) {
+        // Xử lý lỗi từ phía Dio/Server
+        String message = 'Lỗi kết nối server';
+        if (e.response?.statusCode == 401) {
+          message = 'Email hoặc mật khẩu không chính xác';
+        } else if (e.type == DioExceptionType.connectionTimeout) {
+          message = 'Máy chủ không phản hồi';
         }
-        
-        _hienThiLoi(thongBaoLoi);
-      } on SocketException catch (e) {
-        print('SocketException: $e');
-        _hienThiLoi('Lỗi kết nối mạng. Vui lòng kiểm tra internet.');
+        _hienThiLoi(message);
       } catch (e) {
-        print('Lỗi khác: $e');
-        if (e.toString().contains('Timeout') || e.toString().contains('timeout')) {
-          _hienThiLoi('Kết nối quá chậm. Vui lòng thử lại.');
-        } else if (e.toString().contains('internet') || e.toString().contains('network')) {
-          _hienThiLoi('Lỗi kết nối mạng. Vui lòng kiểm tra internet.');
-        } else {
-          _hienThiLoi('Lỗi không xác định: ${e.toString()}');
-        }
+        // Xử lý các lỗi khác (Exception tự ném ra)
+        print('Lỗi: $e');
+        _hienThiLoi(e.toString().replaceAll('Exception: ', ''));
       } finally {
         if (mounted) {
           setState(() {
@@ -232,6 +195,7 @@ class _ManHinhDangNhapState extends State<ManHinhDangNhap>
       }
     }
   }
+
 
  Future<void> _dangNhapVoiGoogle() async {
   try {
