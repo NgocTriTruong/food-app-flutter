@@ -130,7 +130,6 @@ class _ManHinhDangNhapState extends State<ManHinhDangNhap>
         if (mounted) {
           final nguoiDungProvider = Provider.of<NguoiDungProvider>(context, listen: false);
           nguoiDungProvider.dangNhap(userData);
-
           // Hiển thị thông báo chào mừng
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

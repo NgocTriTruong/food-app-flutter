@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kfc/models/san_pham.dart';
 import 'package:kfc/services/firebase_service.dart';
+import 'package:kfc/services_fix/san_pham_service.dart';
 
 class TimKiemProvider extends ChangeNotifier {
   String _tuKhoa = '';
@@ -69,13 +70,13 @@ class TimKiemProvider extends ChangeNotifier {
 
       if (_tuKhoa.isNotEmpty) {
         // Tìm kiếm theo từ khóa - SỬA LẠI
-        ketQua = await FirebaseService.timKiemSanPham(_tuKhoa);
+        ketQua = await ProductService.timKiemSanPham(_tuKhoa);
       } else if (_danhMucId.isNotEmpty) {
         // Lọc theo danh mục
-        ketQua = await FirebaseService.layDanhSachSanPhamTheoDanhMuc(_danhMucId);
+        ketQua = await ProductService.layDanhSachSanPhamTheoDanhMuc(_danhMucId);
       } else {
         // Lấy tất cả sản phẩm
-        ketQua = await FirebaseService.layDanhSachSanPham();
+        ketQua = await ProductService.layDanhSachSanPham();
       }
 
       // Áp dụng bộ lọc

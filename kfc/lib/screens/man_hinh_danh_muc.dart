@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kfc/models/danh_muc.dart';
 import 'package:kfc/models/san_pham.dart';
 import 'package:kfc/services/firebase_service.dart';
+import 'package:kfc/services_fix/san_pham_service.dart';
 import 'package:kfc/theme/mau_sac.dart';
 import 'package:kfc/widgets/san_pham_card.dart';
 
@@ -71,7 +72,7 @@ class _ManHinhDanhMucState extends State<ManHinhDanhMuc>
     try {
       print('🔄 Đang tải sản phẩm cho danh mục: ${widget.danhMuc.id}');
       
-      final danhSach = await FirebaseService.layDanhSachSanPhamTheoDanhMuc(widget.danhMuc.id);
+      final danhSach = await ProductService.layDanhSachSanPhamTheoDanhMuc(widget.danhMuc.id);
       
       if (mounted) {
         setState(() {

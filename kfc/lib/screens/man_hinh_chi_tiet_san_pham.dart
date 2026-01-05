@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kfc/models/san_pham.dart';
 import 'package:kfc/services/firebase_service.dart';
+import 'package:kfc/services_fix/san_pham_service.dart';
 import 'package:kfc/theme/mau_sac.dart';
 import 'package:kfc/providers/yeu_thich_provider.dart';
 import 'package:kfc/providers/gio_hang_provider.dart';
@@ -98,7 +99,7 @@ class _ManHinhChiTietSanPhamState extends State<ManHinhChiTietSanPham> {
     });
 
     try {
-      final sanPham = await FirebaseService.laySanPhamTheoId(_sanPhamId);
+      final sanPham = await ProductService.laySanPhamTheoId(_sanPhamId);
       
       if (mounted) {
         setState(() {

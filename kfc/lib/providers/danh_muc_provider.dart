@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:kfc/models/danh_muc.dart';
 import 'package:kfc/services/firebase_service.dart';
 
+import '../services_fix/san_pham_service.dart';
+
 class DanhMucProvider extends ChangeNotifier {
   List<DanhMuc> _danhSachDanhMuc = [];
   bool _dangTaiDuLieu = false;
@@ -12,19 +14,20 @@ class DanhMucProvider extends ChangeNotifier {
   bool get dangTaiDuLieu => _dangTaiDuLieu;
   String? get loi => _loi;
 
+
+
   // Constructor - tự động tải dữ liệu
   DanhMucProvider() {
     layDanhSachDanhMuc();
   }
-
-  // Lấy danh mục từ Firebase
   Future<void> layDanhSachDanhMuc({bool forceRefresh = false}) async {
     _dangTaiDuLieu = true;
     _loi = null;
     notifyListeners();
 
     try {
-      _danhSachDanhMuc = await FirebaseService.layDanhSachDanhMuc(forceRefresh: forceRefresh);
+      // 🟢 ĐÃ SỬA: Gọi từ ProductService (Spring Boot) thay vì Firebase
+      _danhSachDanhMuc = await ProductService.layDanhSachDanhMuc(forceRefresh: forceRefresh);
       _loi = null;
     } catch (e) {
       _loi = 'Không thể tải danh mục: $e';

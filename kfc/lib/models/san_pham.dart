@@ -4,9 +4,9 @@ class SanPham {
   final int gia;
   final String hinhAnh;
   final String moTa;
-  final String danhMucId;
-  final bool? khuyenMai; // nullable
-  final int? giamGia; // nullable
+  final String danhMucId; // ✅ LUÔN LÀ STRING
+  final bool? khuyenMai;
+  final int? giamGia;
 
   SanPham({
     required this.id,
@@ -26,38 +26,45 @@ class SanPham {
       gia: _parseToInt(json['gia']),
       hinhAnh: json['hinhAnh']?.toString() ?? '',
       moTa: json['moTa']?.toString() ?? '',
-      // Ưu tiên danhMucID trước, sau đó mới đến danhMucId
-      danhMucId: json['danhMucID']?.toString() ?? 
-               json['danhMucId']?.toString() ?? 
-               json['danhmucid']?.toString() ?? '',
+      danhMucId: _parseObjectId(json['danhMucId']),
       khuyenMai: _parseToBool(json['khuyenMai']),
       giamGia: _parseToIntNullable(json['giamGia']),
     );
   }
 
-  // Helper method để parse an toàn sang int
+  // ================== HELPERS ==================
+
+  /// 🔥 Parse ObjectId từ MongoDB
+  static String _parseObjectId(dynamic value) {
+    if (value == null) return '';
+
+    // Backend trả string
+    if (value is String) return value;
+
+    // Backend trả { "$oid": "..." }
+    if (value is Map && value.containsKey('\$oid')) {
+      return value['\$oid'].toString();
+    }
+
+    return value.toString();
+  }
+
   static int _parseToInt(dynamic value) {
     if (value == null) return 0;
     if (value is int) return value;
     if (value is double) return value.toInt();
-    if (value is String) {
-      return int.tryParse(value) ?? 0;
-    }
+    if (value is String) return int.tryParse(value) ?? 0;
     return 0;
   }
 
-  // Helper method để parse an toàn sang int nullable
   static int? _parseToIntNullable(dynamic value) {
     if (value == null) return null;
     if (value is int) return value;
     if (value is double) return value.toInt();
-    if (value is String) {
-      return int.tryParse(value);
-    }
+    if (value is String) return int.tryParse(value);
     return null;
   }
 
-  // Helper method để parse an toàn sang bool
   static bool? _parseToBool(dynamic value) {
     if (value == null) return null;
     if (value is bool) return value;
@@ -65,9 +72,7 @@ class SanPham {
       if (value.toLowerCase() == 'true') return true;
       if (value.toLowerCase() == 'false') return false;
     }
-    if (value is int) {
-      return value == 1;
-    }
+    if (value is int) return value == 1;
     return null;
   }
 
@@ -77,29 +82,25 @@ class SanPham {
       'gia': gia,
       'hinhAnh': hinhAnh,
       'moTa': moTa,
-      // Lưu cả hai format để đảm bảo tương thích
-      'danhMucID': danhMucId, // Format chính
-      'danhMucId': danhMucId, // Format backup
+      'danhMucId': danhMucId, // ✅ GỬI STRING LÊN BACKEND
       'khuyenMai': khuyenMai,
       'giamGia': giamGia,
     };
   }
 
-  // Helper methods
+  // ================== COMPUTED ==================
+
   bool get coKhuyenMai => khuyenMai == true;
   int get phanTramGiamGia => giamGia ?? 0;
-  int get giaGiam => coKhuyenMai ? (gia * (100 - phanTramGiamGia) / 100).round() : gia;
+  int get giaGiam =>
+      coKhuyenMai ? (gia * (100 - phanTramGiamGia) / 100).round() : gia;
 
   @override
-  String toString() {
-    return 'SanPham(id: $id, ten: $ten, gia: $gia)';
-  }
+  String toString() => 'SanPham(id: $id, ten: $ten, danhMucId: $danhMucId)';
 
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is SanPham && other.id == id;
-  }
+  bool operator ==(Object other) =>
+      identical(this, other) || other is SanPham && other.id == id;
 
   @override
   int get hashCode => id.hashCode;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kfc/models/san_pham.dart';
 import 'package:kfc/services/firebase_service.dart';
+import 'package:kfc/services_fix/san_pham_service.dart';
 
 class SanPhamProvider extends ChangeNotifier {
   List<SanPham> _danhSachSanPham = [];
@@ -42,7 +43,7 @@ class SanPhamProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _danhSachSanPham = await FirebaseService.layDanhSachSanPham(forceRefresh: forceRefresh);
+      _danhSachSanPham = await ProductService.layDanhSachSanPham(forceRefresh: forceRefresh);
       _loi = null;
     } catch (e) {
       _loi = 'Không thể tải sản phẩm: $e';
@@ -60,7 +61,7 @@ class SanPhamProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _sanPhamKhuyenMai = await FirebaseService.layDanhSachSanPhamKhuyenMai();
+      _sanPhamKhuyenMai = await ProductService.layDanhSachSanPhamKhuyenMai();
       _loiKhuyenMai = null;
     } catch (e) {
       _loiKhuyenMai = 'Không thể tải sản phẩm khuyến mãi: $e';
@@ -92,7 +93,9 @@ class SanPhamProvider extends ChangeNotifier {
   // Lấy sản phẩm theo danh mục
   Future<List<SanPham>> layDanhSachSanPhamTheoDanhMuc(String danhMucId) async {
     try {
-      return await FirebaseService.layDanhSachSanPhamTheoDanhMuc(danhMucId);
+        final _sanPhamTheoDanhMuc = await ProductService.layDanhSachSanPhamTheoDanhMuc(danhMucId);
+        print(_sanPhamTheoDanhMuc);
+      return _sanPhamTheoDanhMuc;
     } catch (e) {
       print('Lỗi khi lấy sản phẩm theo danh mục: $e');
       return [];
