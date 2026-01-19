@@ -8,19 +8,43 @@ import java.util.List;
 
 @Document(collection = "users")
 public class User {
-    @Id
-    private String id;  // MongoDB _id sẽ tự động sinh nếu null
 
+    @Id
+    private String id; // MongoDB _id
+
+    // ===== Thông tin cơ bản =====
     private String ten;
     private String email;
-    private String password;
+    private String password; // null nếu login Google
     private String soDienThoai;
-    private String rule; // user / admin
+
+    // ===== Phân quyền =====
+    private String rule;              // user / admin
+    private List<String> vaiTro;       // superAdmin, quanLyDonHang...
+
+    // ===== Auth provider =====
+    private AuthProvider provider;     // LOCAL | GOOGLE
+    private String googleId;           // chỉ có nếu GOOGLE
+    private String avatar;             // ảnh đại diện (Google)
+
+    // ===== Trạng thái =====
     private Boolean trangThaiHoatDong;
     private Date ngayTao;
-    private List<String> vaiTro; // array như superAdmin, quanLyDonHang
-    private String otp; // Mã OTP để reset password
-    private Date otpExpiry; // Thời gian hết hạn của OTP
+
+    // ===== OTP reset password =====
+    private String otp;
+    private Date otpExpiry;
+
+    // ================== Constructors ==================
+
+    public User() {
+        this.ngayTao = new Date();
+        this.trangThaiHoatDong = true;
+        this.provider = AuthProvider.LOCAL;
+        this.rule = "user";
+    }
+
+    // ================== Getters & Setters ==================
 
     public String getId() {
         return id;
@@ -50,6 +74,7 @@ public class User {
         return password;
     }
 
+    // password = null nếu Google
     public void setPassword(String password) {
         this.password = password;
     }
@@ -70,6 +95,38 @@ public class User {
         this.rule = rule;
     }
 
+    public List<String> getVaiTro() {
+        return vaiTro;
+    }
+
+    public void setVaiTro(List<String> vaiTro) {
+        this.vaiTro = vaiTro;
+    }
+
+    public AuthProvider getProvider() {
+        return provider;
+    }
+
+    public void setProvider(AuthProvider provider) {
+        this.provider = provider;
+    }
+
+    public String getGoogleId() {
+        return googleId;
+    }
+
+    public void setGoogleId(String googleId) {
+        this.googleId = googleId;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
     public Boolean getTrangThaiHoatDong() {
         return trangThaiHoatDong;
     }
@@ -84,14 +141,6 @@ public class User {
 
     public void setNgayTao(Date ngayTao) {
         this.ngayTao = ngayTao;
-    }
-
-    public List<String> getVaiTro() {
-        return vaiTro;
-    }
-
-    public void setVaiTro(List<String> vaiTro) {
-        this.vaiTro = vaiTro;
     }
 
     public String getOtp() {
@@ -110,17 +159,31 @@ public class User {
         this.otpExpiry = otpExpiry;
     }
 
+    // ================== Helper methods ==================
+
+    public boolean isAdmin() {
+        return "admin".equalsIgnoreCase(this.rule);
+    }
+
+    public boolean isGoogleUser() {
+        return AuthProvider.GOOGLE.equals(this.provider);
+    }
+
+    public boolean isLocalUser() {
+        return AuthProvider.LOCAL.equals(this.provider);
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "id='" + id + '\'' +
                 ", ten='" + ten + '\'' +
                 ", email='" + email + '\'' +
-                ", soDienThoai='" + soDienThoai + '\'' +
                 ", rule='" + rule + '\'' +
+                ", provider=" + provider +
+                ", vaiTro=" + vaiTro +
                 ", trangThaiHoatDong=" + trangThaiHoatDong +
                 ", ngayTao=" + ngayTao +
-                ", vaiTro=" + vaiTro +
                 '}';
     }
 }

@@ -29,6 +29,11 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'com.google.api-client:google-api-client:2.4.1'
+    implementation 'com.google.http-client:google-http-client-jackson2:1.43.3'
+
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
 }
 
 tasks.named('test') {

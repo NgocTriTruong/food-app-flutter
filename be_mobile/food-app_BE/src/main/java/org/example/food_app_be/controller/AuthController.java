@@ -1,6 +1,7 @@
 package org.example.food_app_be.controller;
 
 
+import org.example.food_app_be.dto.GoogleLoginRequest;
 import org.example.food_app_be.dto.LoginRequest;
 import org.example.food_app_be.dto.LoginResponse;
 import org.example.food_app_be.dto.RegisterRequest;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.security.auth.login.LoginContext;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -49,7 +51,20 @@ public class AuthController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sai email hoặc mật khẩu");
     }
-    
+    @PostMapping("/google")
+    public ResponseEntity<?> loginWithGoogle(
+            @RequestBody GoogleLoginRequest request) {
+        System.out.println(1);
+        User user = userService.loginWithGoogle(request.getIdToken());
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail());
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "token", token,
+                        "user", user
+                )
+        );
+    }
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
         try {

@@ -1,5 +1,8 @@
 package org.example.food_app_be.service;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import org.example.food_app_be.model.AuthProvider;
 import org.example.food_app_be.model.User;
 import org.example.food_app_be.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,9 +17,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder;
-    
-    public UserService(UserRepository userRepository, EmailService emailService) {
+    private final GoogleIdTokenVerifier googleIdTokenVerifier;
+
+    public UserService(UserRepository userRepository, EmailService emailService,GoogleIdTokenVerifier googleIdTokenVerifier
+    ) {
         this.userRepository = userRepository;
+        this.googleIdTokenVerifier = googleIdTokenVerifier;
         this.emailService = emailService;
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
@@ -83,7 +89,39 @@ public class UserService {
         }
         return null;
     }
-    
+    public User loginWithGoogle(String idToken) {
+        try {
+            GoogleIdToken googleToken = googleIdTokenVerifier.verify(idToken);
+
+            if (googleToken == null) {
+                throw new RuntimeException("Google token không hợp lệ");
+            }
+
+            GoogleIdToken.Payload payload = googleToken.getPayload();
+
+            String email = payload.getEmail();
+            String name = (String) payload.get("name");
+            String googleId = payload.getSubject();
+            String avatar = (String) payload.get("picture");
+
+            return userRepository.findByEmailIgnoreCase(email)
+                    .orElseGet(() -> {
+                        User u = new User();
+                        u.setEmail(email);
+                        u.setTen(name);
+                        u.setGoogleId(googleId);
+                        u.setAvatar(avatar);
+                        u.setProvider(AuthProvider.GOOGLE);
+                        u.setRule("user");
+                        u.setTrangThaiHoatDong(true);
+                        u.setNgayTao(new Date());
+                        return userRepository.save(u);
+                    });
+
+        } catch (Exception e) {
+            throw new RuntimeException("Xác thực Google thất bại", e);
+        }
+    }
     public boolean verifyOtp(String email, String otp) {
         Optional<User> userOptional = getUserByEmail(email);
         if (userOptional.isPresent()) {
