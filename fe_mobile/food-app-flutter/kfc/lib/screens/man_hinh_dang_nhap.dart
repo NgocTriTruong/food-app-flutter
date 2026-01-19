@@ -8,6 +8,7 @@ import 'package:kfc/screens/man_hinh_dang_ky.dart';
 import 'package:kfc/screens/man_hinh_quen_mat_khau.dart';
 import 'package:dio/dio.dart';
 import 'dart:io';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class ManHinhDangNhap extends StatefulWidget {
   const ManHinhDangNhap({Key? key}) : super(key: key);
@@ -194,35 +195,31 @@ class _ManHinhDangNhapState extends State<ManHinhDangNhap>
   }
 
 
- Future<void> _dangNhapVoiGoogle() async {
-  try {
-    setState(() {
-      _dangXuLy = true;
-    });
+  Future<void> _dangNhapVoiGoogle() async {
+    try {
+      setState(() => _dangXuLy = true);
 
-    // Kiểm tra kết nối internet trước
-    bool coInternet = await _kiemTraKetNoiInternet();
-    if (!coInternet) {
-      throw Exception('Không có kết nối internet');
-    }
+      final user = await AuthService.signInWithGoogle();
+      if (user == null) {
+        throw Exception('Không lấy được thông tin người dùng');
+      }
 
-    print('Bắt đầu đăng nhập với Google');
+      if (!mounted) return;
 
-    // TODO: Google Sign-In integration with backend API
-    // Hiện tại không triển khai, người dùng dùng email/password hoặc đăng ký trước
-    throw Exception('Google Sign-In tạm thời chưa hỗ trợ. Vui lòng sử dụng email/password.');
+      Provider.of<NguoiDungProvider>(context, listen: false)
+          .dangNhap(user);
 
-  } catch (e) {
-    print('Lỗi: $e');
-    _hienThiLoi(e.toString().replaceAll('Exception: ', ''));
-  } finally {
-    if (mounted) {
-      setState(() {
-        _dangXuLy = false;
-      });
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AuthService.getNavigationRoute(user.rule),
+            (_) => false,
+      );
+    } catch (e) {
+      _hienThiLoi(e.toString().replaceAll('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _dangXuLy = false);
     }
   }
-}
 
   void _hienThiLoi(String thongBao) {
     if (mounted) {

@@ -72,6 +72,16 @@ class AuthService {
       rethrow;
     }
   }
+  static Future<NguoiDung> signInWithGoogle(String idToken) async {
+    final res = await _dio.post(
+      '/auth/google',
+      data: {
+        'idToken': idToken,
+      },
+    );
+
+    return NguoiDung.fromJson(res.data['user']);
+  }
 
   // Lấy thông tin người dùng hiện tại (từ token)
   static Future<Map<String, dynamic>?> getCurrentUserData() async {

@@ -3,28 +3,47 @@ class NguoiDung {
   final String ten;
   final String email;
   final String soDienThoai;
-  final String rule; // Thêm trường rule
+  final String rule;
+
+  // 🔥 Thêm mới
+  final String provider;        // LOCAL | GOOGLE
+  final List<String> vaiTro;    // superAdmin, quanLyDonHang...
+  final String? avatar;
 
   NguoiDung({
     required this.id,
     required this.ten,
     required this.email,
     required this.soDienThoai,
-    this.rule = 'user', // Mặc định là user
+    this.rule = 'user',
+    this.provider = 'LOCAL',
+    this.vaiTro = const ['user'],
+    this.avatar,
   });
 
-  // Chuyển đổi từ Map sang NguoiDung
+  // ================= fromMap / fromJson =================
+
   factory NguoiDung.fromMap(Map<String, dynamic> map) {
     return NguoiDung(
-      id: map['id'] ?? '',
+      id: map['id'] ??
+          map['_id'] ??
+          map['_id']?['\$oid'] ??
+          '',
       ten: map['ten'] ?? '',
       email: map['email'] ?? '',
       soDienThoai: map['soDienThoai'] ?? '',
       rule: map['rule'] ?? 'user',
+      provider: map['provider'] ?? 'LOCAL',
+      vaiTro: List<String>.from(map['vaiTro'] ?? ['user']),
+      avatar: map['avatar'],
     );
   }
 
-  // Chuyển đổi từ NguoiDung sang Map
+  factory NguoiDung.fromJson(Map<String, dynamic> json) =>
+      NguoiDung.fromMap(json);
+
+  // ================= toMap / toJson =================
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -32,31 +51,18 @@ class NguoiDung {
       'email': email,
       'soDienThoai': soDienThoai,
       'rule': rule,
-    };
-  }
-  factory NguoiDung.fromJson(Map<String, dynamic> json) {
-    return NguoiDung(
-      id: json['id']?.toString() ?? '',
-      ten: json['ten'] ?? '',
-      email: json['email'] ?? '',
-      soDienThoai: json['soDienThoai'] ?? '',
-      rule: json['rule'] ?? 'user',
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'ten': ten,
-      'email': email,
-      'soDienThoai': soDienThoai,
-      'rule': rule,
+      'provider': provider,
+      'vaiTro': vaiTro,
+      'avatar': avatar,
     };
   }
 
-  // Kiểm tra có phải admin không
+  Map<String, dynamic> toJson() => toMap();
+
+  // ================= Helpers =================
+
   bool get isAdmin => rule == 'admin';
-  
-  // Kiểm tra có phải user không
   bool get isUser => rule == 'user';
+
+  bool get isGoogleAccount => provider == 'GOOGLE';
 }

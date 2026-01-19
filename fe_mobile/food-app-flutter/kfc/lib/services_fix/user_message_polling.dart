@@ -95,7 +95,7 @@ class UserMessagePollingService {
       }
 
       // Chờ trước khi poll lần tiếp theo
-      await Future.delayed(Duration(seconds: _pollingIntervalSeconds ?? 3));
+      await Future.delayed(Duration(seconds: _pollingIntervalSeconds ?? 10));
     }
   }
 

@@ -15,7 +15,10 @@ abstract class AuthApi {
       @Path("uid") String uid,
       @Body() Map<String, dynamic> data,
       );
-
+  @POST("/auth/google")
+  Future<HttpResponse<dynamic>> loginWithGoogle(
+      @Body() Map<String, dynamic> body,
+      );
   @POST("/users")
   Future<void> createUserData(@Body() NguoiDung nguoiDung);
 

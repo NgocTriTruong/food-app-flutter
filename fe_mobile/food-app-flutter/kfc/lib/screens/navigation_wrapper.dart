@@ -33,13 +33,13 @@ class _NavigationWrapperState extends State<NavigationWrapper> {
   void initState() {
     super.initState();
     // Bắt đầu polling tin nhắn khi user vào app
-    _pollingService.startPolling();
+    // _pollingService.startPolling();
   }
 
   @override
   void dispose() {
     // Dừng polling khi user thoát app
-    _pollingService.stopPolling();
+    // _pollingService.stopPolling();
     super.dispose();
   }
 
