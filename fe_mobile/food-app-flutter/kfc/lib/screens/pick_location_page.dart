@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 
 class PickLocationPage extends StatefulWidget {
@@ -11,7 +12,6 @@ class PickLocationPage extends StatefulWidget {
 
 class _PickLocationPageState extends State<PickLocationPage> {
   LatLng? _selectedLatLng;
-  final Set<Marker> _markers = {};
 
   @override
   void initState() {
@@ -33,45 +33,47 @@ class _PickLocationPageState extends State<PickLocationPage> {
     }
 
     final current = await location.getLocation();
-    final latLng = LatLng(current.latitude!, current.longitude!);
-
     setState(() {
-      _selectedLatLng = latLng;
-      _markers.add(
-        Marker(markerId: const MarkerId('current'), position: latLng),
-      );
-    });
-  }
-
-  void _onTapMap(LatLng latLng) {
-    setState(() {
-      _selectedLatLng = latLng;
-      _markers
-        ..clear()
-        ..add(
-          Marker(
-            markerId: const MarkerId('selected'),
-            position: latLng,
-          ),
-        );
+      _selectedLatLng = LatLng(current.latitude!, current.longitude!);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_selectedLatLng == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Chọn địa chỉ giao hàng')),
-      body: _selectedLatLng == null
-          ? const Center(child: CircularProgressIndicator())
-          : GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: _selectedLatLng!,
-          zoom: 16,
+      body: FlutterMap(
+        options: MapOptions(
+          initialCenter: _selectedLatLng!,
+          initialZoom: 16,
+          onTap: (_, latLng) {
+            setState(() {
+              _selectedLatLng = latLng;
+            });
+          },
         ),
-        onTap: _onTapMap,
-        markers: _markers,
-        myLocationEnabled: true,
-        myLocationButtonEnabled: true,
+        children: [
+          TileLayer(
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            userAgentPackageName: 'com.example.kfc',
+          ),
+          MarkerLayer(
+            markers: [
+              Marker(
+                point: _selectedLatLng!,
+                width: 40,
+                height: 40,
+                child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
+              ),
+            ],
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.pop(context, _selectedLatLng),

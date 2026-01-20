@@ -8,6 +8,7 @@ import 'package:kfc/theme/mau_sac.dart';
 import 'package:kfc/models/nguoi_dung.dart';
 import 'package:kfc/providers/nguoi_dung_provider.dart';
 import 'package:kfc/services_fix/auth_service.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class ManHinhTaiKhoan extends StatefulWidget {
@@ -111,9 +112,20 @@ class _ManHinhTaiKhoanState extends State<ManHinhTaiKhoan>
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
-                    _buildSimpleTile(Icons.edit_outlined, 'Chỉnh sửa thông tin', () {
+                      _buildSimpleTile(Icons.edit_outlined, 'Chỉnh sửa thông tin', () {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const ManHinhChinhSuaThongTin()));
                     }),
+                      _buildSimpleTile(Icons.face, 'Đăng ký Face ID', () async {
+                        try {
+                          final picker = ImagePicker();
+                          final XFile? picked = await picker.pickImage(source: ImageSource.camera, maxWidth: 800, maxHeight: 800, imageQuality: 80);
+                          if (picked == null) return;
+                          await AuthService.registerFaceFromFile(picked.path);
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đăng ký Face ID thành công')));
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+                        }
+                      }),
                     _buildSimpleTile(Icons.receipt_long, 'Đơn hàng của tôi', () {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const ManHinhDonHang()));
                     }),

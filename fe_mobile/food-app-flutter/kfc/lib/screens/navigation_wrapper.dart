@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:kfc/providers/thong_bao_provider.dart';
 import 'package:kfc/providers/gio_hang_provider.dart';
 import 'package:kfc/services_fix/user_message_polling.dart';
+import 'package:kfc/widgets/floating_voice_button.dart';
 
 class NavigationWrapper extends StatefulWidget {
   const NavigationWrapper({Key? key}) : super(key: key);
@@ -46,9 +47,15 @@ class _NavigationWrapperState extends State<NavigationWrapper> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _chiSoHienTai,
-        children: _danhSachManHinh,
+      body: Stack(
+        children: [
+          IndexedStack(
+            index: _chiSoHienTai,
+            children: _danhSachManHinh,
+          ),
+          // Floating voice button
+          const FloatingVoiceButton(),
+        ],
       ),
       bottomNavigationBar: Consumer2<ThongBaoProvider, GioHangProvider>(
         builder: (context, thongBaoProvider, gioHangProvider, child) {

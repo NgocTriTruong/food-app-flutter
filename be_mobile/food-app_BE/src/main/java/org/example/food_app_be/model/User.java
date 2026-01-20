@@ -38,6 +38,10 @@ public class User {
 
     private Boolean soDienThoaiDaXacThuc;
     private Date ngayXacThucSoDienThoai;
+    // ===== Face ID =====
+    private Boolean faceIdEnabled;
+    private String faceImagePath; // path to stored face image
+    private String faceHash; // perceptual hash (aHash) for quick compare
     // ================== Constructors ==================
 
     public User() {
@@ -46,6 +50,7 @@ public class User {
         this.provider = AuthProvider.LOCAL;
         this.rule = "user";
         this.soDienThoaiDaXacThuc = false;
+        this.faceIdEnabled = false;
     }
 
     // ================== Getters & Setters ==================
@@ -191,6 +196,30 @@ public class User {
 
     public void setNgayXacThucSoDienThoai(Date ngayXacThucSoDienThoai) {
         this.ngayXacThucSoDienThoai = ngayXacThucSoDienThoai;
+    }
+
+    public Boolean getFaceIdEnabled() {
+        return faceIdEnabled;
+    }
+
+    public void setFaceIdEnabled(Boolean faceIdEnabled) {
+        this.faceIdEnabled = faceIdEnabled;
+    }
+
+    public String getFaceImagePath() {
+        return faceImagePath;
+    }
+
+    public void setFaceImagePath(String faceImagePath) {
+        this.faceImagePath = faceImagePath;
+    }
+
+    public String getFaceHash() {
+        return faceHash;
+    }
+
+    public void setFaceHash(String faceHash) {
+        this.faceHash = faceHash;
     }
 
     @Override

@@ -8,6 +8,7 @@ import 'package:kfc/screens/man_hinh_dang_ky.dart';
 import 'package:kfc/screens/man_hinh_quen_mat_khau.dart';
 import 'package:dio/dio.dart';
 import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class ManHinhDangNhap extends StatefulWidget {
@@ -221,6 +222,36 @@ class _ManHinhDangNhapState extends State<ManHinhDangNhap>
     }
   }
 
+  Future<void> _dangNhapBangKhuonMat() async {
+    try {
+      setState(() => _dangXuLy = true);
+      final ImagePicker picker = ImagePicker();
+      final XFile? picked = await picker.pickImage(source: ImageSource.camera, maxWidth: 800, maxHeight: 800, imageQuality: 80);
+      if (picked == null) return;
+
+      final userData = await AuthService.loginWithFaceFile(picked.path);
+      if (userData == null) throw Exception('Không nhận diện khuôn mặt');
+
+      if (!mounted) return;
+      Provider.of<NguoiDungProvider>(context, listen: false).dangNhap(userData);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Chào mừng ${userData.ten}!')),
+      );
+
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AuthService.getNavigationRoute(userData.rule),
+            (_) => false,
+      );
+
+    } catch (e) {
+      _hienThiLoi(e.toString().replaceAll('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _dangXuLy = false);
+    }
+  }
+
   void _hienThiLoi(String thongBao) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -286,6 +317,8 @@ class _ManHinhDangNhapState extends State<ManHinhDangNhap>
                   
                   // Nút đăng nhập với Google
                   _buildGoogleSignInButton(),
+                  const SizedBox(height: 12),
+                  _buildFaceLoginButton(),
                   
                   const SizedBox(height: 24),
                   
@@ -624,6 +657,47 @@ class _ManHinhDangNhapState extends State<ManHinhDangNhap>
                   elevation: 0,
                   disabledBackgroundColor: MauSac.trang.withOpacity(0.5),
                   padding: const EdgeInsets.symmetric(horizontal: 16),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFaceLoginButton() {
+    return AnimatedBuilder(
+      animation: _animationController,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, _slideAnimation.value),
+          child: Opacity(
+            opacity: _fadeAnimation.value,
+            child: Container(
+              width: double.infinity,
+              height: 56,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.white.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: ElevatedButton.icon(
+                onPressed: _dangXuLy ? null : _dangNhapBangKhuonMat,
+                icon: const Icon(Icons.camera_alt, size: 20),
+                label: const Text(
+                  'Đăng nhập bằng khuôn mặt',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: MauSac.denNhat,
+                  foregroundColor: MauSac.trang,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
               ),
             ),
