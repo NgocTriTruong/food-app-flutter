@@ -32,6 +32,9 @@ WORKDIR /app
 # Copy the JAR file from the build stage
 COPY --from=build /app/build/libs/*.jar app.jar
 
+# Create uploads directory
+RUN mkdir -p /app/uploads && chown -R spring:spring /app/uploads
+
 # Change ownership of the application files
 RUN chown -R spring:spring /app
 
