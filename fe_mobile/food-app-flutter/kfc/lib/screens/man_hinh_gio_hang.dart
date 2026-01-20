@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:kfc/screens/pick_location_page.dart';
 import 'package:kfc/screens/verify_phone_screen.dart';
 import 'package:kfc/theme/mau_sac.dart';
@@ -15,6 +14,9 @@ import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:geocoding/geocoding.dart';
+
 
 class ManHinhGioHang extends StatefulWidget {
   const ManHinhGioHang({Key? key}) : super(key: key);
@@ -1185,7 +1187,29 @@ class _ManHinhGioHangState extends State<ManHinhGioHang> with TickerProviderStat
       ),
     );
   }
-  
+  Future<String> getAddressFromLatLng(LatLng latLng) async {
+    try {
+      final placemarks = await placemarkFromCoordinates(
+        latLng.latitude,
+        latLng.longitude,
+      );
+
+      if (placemarks.isEmpty) return 'Không xác định được địa chỉ';
+
+      final p = placemarks.first;
+
+      return [
+        p.street,
+        p.subLocality,            // Phường
+        p.locality,               // Quận / Thành phố
+        p.administrativeArea,     // Tỉnh
+        p.country
+      ].where((e) => e != null && e!.isNotEmpty).join(', ');
+    } catch (e) {
+      return 'Không lấy được địa chỉ';
+    }
+  }
+
   void _showCheckoutBottomSheet(GioHangProvider gioHangProvider) {
     final nguoiDungProvider = Provider.of<NguoiDungProvider>(context, listen: false);
     
@@ -1296,7 +1320,7 @@ class _ManHinhGioHangState extends State<ManHinhGioHang> with TickerProviderStat
                         const SizedBox(height: 16),
                         TextFormField(
                           controller: _diaChiController,
-                          readOnly: true, // QUAN TRỌNG
+                          readOnly: true,
                           maxLines: 2,
                           decoration: InputDecoration(
                             labelText: 'Địa chỉ giao hàng',
@@ -1322,10 +1346,14 @@ class _ManHinhGioHangState extends State<ManHinhGioHang> with TickerProviderStat
                             );
 
                             if (result != null) {
+                              _diaChiController.text = 'Đang lấy địa chỉ...';
+
+                              final address = await getAddressFromLatLng(result);
+
                               setState(() {
-                                _diaChiController.text =
-                                'Lat: ${result.latitude}, Lng: ${result.longitude}';
+                                _diaChiController.text = address;
                               });
+
                             }
                           },
                         ),
@@ -1591,12 +1619,8 @@ class _ManHinhGioHangState extends State<ManHinhGioHang> with TickerProviderStat
     final user = nguoiDungProvider.currentUser;
 
     if (user == null || user.phoneVerified != true) {
-      final verified = await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const VerifyPhoneScreen()),
-      );
 
-      if (verified != true) return;
+
     }
 
     print('Processing order: Starting createDonHang');

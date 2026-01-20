@@ -46,7 +46,7 @@ class SanPhamCard extends StatelessWidget {
 
     // Relative server path like /uploads/...
     if (sanPham.hinhAnh.startsWith('/')) {
-      final fullUrl = 'http://10.0.2.2:8080${sanPham.hinhAnh}';
+      final fullUrl = 'https://food-app-flutter.fly.dev${sanPham.hinhAnh}';
       return CachedNetworkImage(
         imageUrl: fullUrl,
         fit: BoxFit.cover,
