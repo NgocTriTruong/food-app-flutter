@@ -10,6 +10,9 @@ class NguoiDung {
   final List<String> vaiTro;    // superAdmin, quanLyDonHang...
   final String? avatar;
 
+  final bool phoneVerified;
+
+
   NguoiDung({
     required this.id,
     required this.ten,
@@ -19,6 +22,7 @@ class NguoiDung {
     this.provider = 'LOCAL',
     this.vaiTro = const ['user'],
     this.avatar,
+    this.phoneVerified = false,
   });
 
   // ================= fromMap / fromJson =================
@@ -33,6 +37,7 @@ class NguoiDung {
       email: map['email'] ?? '',
       soDienThoai: map['soDienThoai'] ?? '',
       rule: map['rule'] ?? 'user',
+      phoneVerified: map['phoneVerified'] ?? false,
       provider: map['provider'] ?? 'LOCAL',
       vaiTro: List<String>.from(map['vaiTro'] ?? ['user']),
       avatar: map['avatar'],
@@ -51,6 +56,7 @@ class NguoiDung {
       'email': email,
       'soDienThoai': soDienThoai,
       'rule': rule,
+      'phoneVerified': phoneVerified,
       'provider': provider,
       'vaiTro': vaiTro,
       'avatar': avatar,

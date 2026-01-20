@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:kfc/screens/pick_location_page.dart';
+import 'package:kfc/screens/verify_phone_screen.dart';
 import 'package:kfc/theme/mau_sac.dart';
 import 'package:kfc/models/san_pham.dart';
 import 'package:kfc/models/san_pham_gio_hang.dart';
@@ -621,8 +624,8 @@ class _ManHinhGioHangState extends State<ManHinhGioHang> with TickerProviderStat
                       borderRadius: BorderRadius.circular(16),
                       child: _buildImageFromAssets(sanPham.hinhAnh, height: 80),
                     ),
-                    if (sanPham.khuyenMai == true && 
-                        sanPham.giamGia != null && 
+                    if (sanPham.khuyenMai == true &&
+                        sanPham.giamGia != null &&
                         sanPham.giamGia! > 0)
                       Positioned(
                         top: 4,
@@ -647,9 +650,9 @@ class _ManHinhGioHangState extends State<ManHinhGioHang> with TickerProviderStat
                 ),
               ),
             ),
-            
+
             const SizedBox(width: 16),
-            
+
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -665,9 +668,9 @@ class _ManHinhGioHangState extends State<ManHinhGioHang> with TickerProviderStat
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   Row(
                     children: [
                       Text(
@@ -678,8 +681,8 @@ class _ManHinhGioHangState extends State<ManHinhGioHang> with TickerProviderStat
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      if (sanPham.khuyenMai == true && 
-                          sanPham.giamGia != null && 
+                      if (sanPham.khuyenMai == true &&
+                          sanPham.giamGia != null &&
                           sanPham.giamGia! > 0) ...[
                         const SizedBox(width: 8),
                         Text(
@@ -693,9 +696,9 @@ class _ManHinhGioHangState extends State<ManHinhGioHang> with TickerProviderStat
                       ],
                     ],
                   ),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -740,7 +743,7 @@ class _ManHinhGioHangState extends State<ManHinhGioHang> with TickerProviderStat
                           ],
                         ),
                       ),
-                      
+
                       IconButton(
                         icon: const Icon(Icons.delete_outline, color: MauSac.kfcRed, size: 20),
                         onPressed: () => _showRemoveItemDialog(sanPham, gioHangProvider),
@@ -1291,18 +1294,42 @@ class _ManHinhGioHangState extends State<ManHinhGioHang> with TickerProviderStat
                           },
                         ),
                         const SizedBox(height: 16),
-                        _buildTextField(
+                        TextFormField(
                           controller: _diaChiController,
-                          label: 'Địa chỉ giao hàng',
-                          icon: Icons.location_on,
+                          readOnly: true, // QUAN TRỌNG
                           maxLines: 2,
+                          decoration: InputDecoration(
+                            labelText: 'Địa chỉ giao hàng',
+                            prefixIcon: const Icon(Icons.location_on, color: MauSac.kfcRed),
+                            filled: true,
+                            fillColor: MauSac.denNen,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Vui lòng nhập địa chỉ giao hàng';
+                              return 'Vui lòng chọn địa chỉ giao hàng';
                             }
                             return null;
                           },
+                          onTap: () async {
+                            final LatLng? result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const PickLocationPage(),
+                              ),
+                            );
+
+                            if (result != null) {
+                              setState(() {
+                                _diaChiController.text =
+                                'Lat: ${result.latitude}, Lng: ${result.longitude}';
+                              });
+                            }
+                          },
                         ),
+
                         const SizedBox(height: 16),
                         _buildTextField(
                           controller: _ghiChuController,
@@ -1508,7 +1535,7 @@ class _ManHinhGioHangState extends State<ManHinhGioHang> with TickerProviderStat
       ),
     );
   }
-  
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -1548,15 +1575,29 @@ class _ManHinhGioHangState extends State<ManHinhGioHang> with TickerProviderStat
       ),
     );
   }
-  
+
  Future<void> _processOrder(GioHangProvider gioHangProvider, StateSetter setState) async {
   if (!_formKey.currentState!.validate()) return;
+
+
+
 
   setState(() => _isLoading = true);
 
   try {
     final nguoiDungProvider = Provider.of<NguoiDungProvider>(context, listen: false);
     final donHangProvider = Provider.of<DonHangProvider>(context, listen: false);
+
+    final user = nguoiDungProvider.currentUser;
+
+    if (user == null || user.phoneVerified != true) {
+      final verified = await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const VerifyPhoneScreen()),
+      );
+
+      if (verified != true) return;
+    }
 
     print('Processing order: Starting createDonHang');
     final orderId = await donHangProvider.createDonHang(

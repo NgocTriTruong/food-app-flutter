@@ -41,46 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDp5VnWfczmfb1fLRdL4__TjpiOUnxygxc',
-    appId: '1:977038315313:web:3dfcc0bca71b72433e6a10',
-    messagingSenderId: '977038315313',
-    projectId: 'kfc-app-ff40b',
-    authDomain: 'kfc-app-ff40b.firebaseapp.com',
-    storageBucket: 'kfc-app-ff40b.firebasestorage.app',
+    apiKey: 'AIzaSyBaeIkmBy5t2rZHag8tmWwrrUCv0rf4LLM',
+    appId: '1:774583050669:web:9d8772b104310765368124',
+    messagingSenderId: '774583050669',
+    projectId: 'food-ap-2eeb8',
+    authDomain: 'food-ap-2eeb8.firebaseapp.com',
+    storageBucket: 'food-ap-2eeb8.firebasestorage.app',
+    measurementId: 'G-Y75R3XWZ5E',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC_oU67LHziUz7Pzq41u2mm0QEL9zR633Q',
-    appId: '1:977038315313:android:ad82f8b40780b8a23e6a10',
-    messagingSenderId: '977038315313',
-    projectId: 'kfc-app-ff40b',
-    storageBucket: 'kfc-app-ff40b.firebasestorage.app',
+    apiKey: 'AIzaSyBYxmlBrj2f3HlIrRJCUEEIpUiEPCXGtCc',
+    appId: '1:774583050669:android:cb733e84257e6391368124',
+    messagingSenderId: '774583050669',
+    projectId: 'food-ap-2eeb8',
+    storageBucket: 'food-ap-2eeb8.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyD7Ps-xTM7yFWk048QLW5QgfP5zbQoAXBo',
-    appId: '1:977038315313:ios:5ccee29d06b2ad833e6a10',
-    messagingSenderId: '977038315313',
-    projectId: 'kfc-app-ff40b',
-    storageBucket: 'kfc-app-ff40b.firebasestorage.app',
+    apiKey: 'AIzaSyDMjfLwdlgM0C5LS22gV_7rVuOpaTXf6aI',
+    appId: '1:774583050669:ios:11887cb33c330edc368124',
+    messagingSenderId: '774583050669',
+    projectId: 'food-ap-2eeb8',
+    storageBucket: 'food-ap-2eeb8.firebasestorage.app',
     iosBundleId: 'com.example.kfc',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyD7Ps-xTM7yFWk048QLW5QgfP5zbQoAXBo',
-    appId: '1:977038315313:ios:5ccee29d06b2ad833e6a10',
-    messagingSenderId: '977038315313',
-    projectId: 'kfc-app-ff40b',
-    storageBucket: 'kfc-app-ff40b.firebasestorage.app',
+    apiKey: 'AIzaSyDMjfLwdlgM0C5LS22gV_7rVuOpaTXf6aI',
+    appId: '1:774583050669:ios:11887cb33c330edc368124',
+    messagingSenderId: '774583050669',
+    projectId: 'food-ap-2eeb8',
+    storageBucket: 'food-ap-2eeb8.firebasestorage.app',
     iosBundleId: 'com.example.kfc',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDp5VnWfczmfb1fLRdL4__TjpiOUnxygxc',
-    appId: '1:977038315313:web:f2d4f46e08c945503e6a10',
-    messagingSenderId: '977038315313',
-    projectId: 'kfc-app-ff40b',
-    authDomain: 'kfc-app-ff40b.firebaseapp.com',
-    storageBucket: 'kfc-app-ff40b.firebasestorage.app',
+    apiKey: 'AIzaSyBaeIkmBy5t2rZHag8tmWwrrUCv0rf4LLM',
+    appId: '1:774583050669:web:d8b235a39be240fb368124',
+    messagingSenderId: '774583050669',
+    projectId: 'food-ap-2eeb8',
+    authDomain: 'food-ap-2eeb8.firebaseapp.com',
+    storageBucket: 'food-ap-2eeb8.firebasestorage.app',
+    measurementId: 'G-6D6XWYBEEP',
   );
+
 }

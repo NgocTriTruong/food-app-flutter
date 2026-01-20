@@ -6,6 +6,8 @@ import 'package:kfc/screens/man_hinh_chi_tiet_san_pham.dart';
 import 'package:provider/provider.dart';
 import 'package:kfc/providers/tim_kiem_provider.dart';
 import 'package:kfc/data/du_lieu_mau.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+
 
 class ManHinhTimKiem extends StatefulWidget {
   const ManHinhTimKiem({Key? key}) : super(key: key);
@@ -21,6 +23,9 @@ class _ManHinhTimKiemState extends State<ManHinhTimKiem>
   late AnimationController _filterAnimationController;
   late Animation<double> _filterAnimation;
   final FocusNode _searchFocusNode = FocusNode();
+
+  late stt.SpeechToText _speech;
+  bool _dangNghe = false;
 
   @override
   void initState() {
@@ -42,6 +47,46 @@ class _ManHinhTimKiemState extends State<ManHinhTimKiem>
       listen: false,
     );
     _searchController.text = timKiemProvider.tuKhoa;
+
+    _speech = stt.SpeechToText();
+
+  }
+  Future<void> _batDauNgheGiongNoi() async {
+    bool available = await _speech.initialize(
+      onStatus: (status) {
+        debugPrint('Speech status: $status');
+      },
+      onError: (error) {
+        debugPrint('Speech error: $error');
+      },
+    );
+
+    if (!available) return;
+
+    setState(() => _dangNghe = true);
+    print("dang nghe");
+    await _speech.listen(
+      localeId: 'vi_VN', // ✅ locale đặt ở đây
+      onResult: (result) {
+        print(result);
+        final text = result.recognizedWords;
+
+        _searchController.text = text;
+        _searchController.selection = TextSelection.fromPosition(
+          TextPosition(offset: text.length),
+        );
+
+        Provider.of<TimKiemProvider>(
+          context,
+          listen: false,
+        ).datTuKhoa(text);
+      },
+    );
+  }
+
+  void _dungNgheGiongNoi() {
+    _speech.stop();
+    setState(() => _dangNghe = false);
   }
 
   @override
@@ -138,8 +183,8 @@ class _ManHinhTimKiemState extends State<ManHinhTimKiem>
               color: MauSac.denNen,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: _searchFocusNode.hasFocus 
-                    ? MauSac.kfcRed 
+                color: _searchFocusNode.hasFocus
+                    ? MauSac.kfcRed
                     : MauSac.xam.withOpacity(0.3),
                 width: 2,
               ),
@@ -159,7 +204,7 @@ class _ManHinhTimKiemState extends State<ManHinhTimKiem>
                   horizontal: 20,
                   vertical: 16,
                 ),
-                prefixIcon: Container(
+                prefixIcon: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Icon(
                     Icons.search,
@@ -167,26 +212,47 @@ class _ManHinhTimKiemState extends State<ManHinhTimKiem>
                     size: 24,
                   ),
                 ),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? Container(
-                        padding: const EdgeInsets.all(8),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.clear,
-                            color: MauSac.xam.withOpacity(0.7),
-                            size: 20,
-                          ),
-                          onPressed: () {
-                            _searchController.clear();
-                            Provider.of<TimKiemProvider>(
-                              context,
-                              listen: false,
-                            ).datTuKhoa('');
-                            setState(() {});
-                          },
+
+                /// 🔴 SUFFIX ICON (CLEAR + MICRO)
+                suffixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // ❌ Clear text
+                    if (_searchController.text.isNotEmpty)
+                      IconButton(
+                        icon: Icon(
+                          Icons.clear,
+                          color: MauSac.xam.withOpacity(0.7),
+                          size: 20,
                         ),
-                      )
-                    : null,
+                        onPressed: () {
+                          _searchController.clear();
+                          Provider.of<TimKiemProvider>(
+                            context,
+                            listen: false,
+                          ).datTuKhoa('');
+                          setState(() {});
+                        },
+                      ),
+
+                    // 🎤 Voice search
+                    IconButton(
+                      icon: Icon(
+                        _dangNghe ? Icons.mic : Icons.mic_none,
+                        color: _dangNghe
+                            ? MauSac.kfcRed
+                            : MauSac.xam.withOpacity(0.7),
+                      ),
+                      onPressed: () {
+                        if (_dangNghe) {
+                          _dungNgheGiongNoi();
+                        } else {
+                          _batDauNgheGiongNoi();
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
               onChanged: (value) {
                 Provider.of<TimKiemProvider>(
