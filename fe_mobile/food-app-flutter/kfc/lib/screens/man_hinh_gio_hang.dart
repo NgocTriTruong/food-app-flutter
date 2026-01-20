@@ -1619,12 +1619,8 @@ class _ManHinhGioHangState extends State<ManHinhGioHang> with TickerProviderStat
     final user = nguoiDungProvider.currentUser;
 
     if (user == null || user.phoneVerified != true) {
-      final verified = await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const VerifyPhoneScreen()),
-      );
 
-      if (verified != true) return;
+
     }
 
     print('Processing order: Starting createDonHang');
