@@ -197,6 +197,52 @@
     }
 
     // =============================
+    // FACE ID - Register face for current user
+    // =============================
+    static Future<void> registerFaceFromFile(String filePath) async {
+      try {
+        final dio = DioClient.dio(withAuth: true);
+        final formData = FormData.fromMap({
+          'image': await MultipartFile.fromFile(filePath, filename: 'face.jpg'),
+        });
+        await dio.post('/face/register', data: formData);
+      } catch (e) {
+        print('Error registerFace: $e');
+        throw Exception('Không thể đăng ký khuôn mặt: $e');
+      }
+    }
+
+    // =============================
+    // FACE ID - Login with face image
+    // =============================
+    static Future<NguoiDung?> loginWithFaceFile(String filePath) async {
+      try {
+        final dio = DioClient.dio(withAuth: false);
+        final formData = FormData.fromMap({
+          'image': await MultipartFile.fromFile(filePath, filename: 'face.jpg'),
+        });
+
+        final response = await dio.post('/face/login', data: formData);
+        final data = response.data as Map<String, dynamic>;
+        final String? token = data['token'];
+        final userData = data['user'];
+        if (token != null && userData != null) {
+          await _storage.write(key: "token", value: token);
+          await _storage.write(key: "uid", value: userData['id'].toString());
+          return NguoiDung.fromJson(userData);
+        }
+        return null;
+      } on DioException catch (e) {
+        print('Error loginWithFaceFile - DioException: status=${e.response?.statusCode} body=${e.response?.data}');
+        final msg = e.response?.data?.toString() ?? e.message;
+        throw Exception('Đăng nhập bằng khuôn mặt thất bại: $msg');
+      } catch (e) {
+        print('Error loginWithFaceFile: $e');
+        throw Exception('Đăng nhập bằng khuôn mặt thất bại');
+      }
+    }
+
+    // =============================
     // KIỂM TRA LOGIN (Giữ nguyên tên hàm của bạn)
     // =============================
     static Future<bool> isLoggedIn() async {
