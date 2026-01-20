@@ -1,24 +1,22 @@
 package org.example.food_app_be.controller;
 
 
-import org.example.food_app_be.dto.GoogleLoginRequest;
-import org.example.food_app_be.dto.LoginRequest;
-import org.example.food_app_be.dto.LoginResponse;
-import org.example.food_app_be.dto.RegisterRequest;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
+import org.example.food_app_be.dto.*;
 import org.example.food_app_be.model.User;
+import org.example.food_app_be.service.FirebaseTokenService;
 import org.example.food_app_be.service.UserService;
 import org.example.food_app_be.util.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.security.auth.login.LoginContext;
+import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
@@ -28,10 +26,13 @@ public class AuthController {
     private UserService userService;
     private JwtUtil jwtUtil;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    
-    AuthController(UserService userService, JwtUtil jwtUtil){
+    private final FirebaseTokenService firebaseTokenService;
+
+
+    AuthController(UserService userService, JwtUtil jwtUtil,FirebaseTokenService firebaseTokenService){
         this.userService=userService;
         this.jwtUtil=jwtUtil;
+        this.firebaseTokenService = firebaseTokenService;
     }
 
     @PostMapping("/login")
@@ -147,4 +148,28 @@ public class AuthController {
                 .body("Không tìm thấy người dùng");
         }
     }
+    @PostMapping("/verify-phone")
+    public ResponseEntity<?> verifyPhone(
+            @RequestBody VerifyPhoneRequest request) throws FirebaseAuthException {
+
+        FirebaseToken token =
+                FirebaseAuth.getInstance()
+                        .verifyIdToken(request.getIdToken());
+
+        String phoneNumber = (String) token.getClaims().get("phone_number");
+        String uid = token.getUid();
+
+        if (phoneNumber == null) {
+            throw new RuntimeException("Không lấy được SĐT");
+        }
+
+//        User user = userRepository.findBySoDienThoai(phoneNumber)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//
+//        user.setTrangThaiHoatDong(true);
+//        userRepository.save(user);
+
+        return ResponseEntity.ok("Xác thực SĐT thành công");
+    }
+
 }

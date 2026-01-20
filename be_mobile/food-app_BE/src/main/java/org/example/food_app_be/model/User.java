@@ -35,6 +35,9 @@ public class User {
     private String otp;
     private Date otpExpiry;
 
+
+    private Boolean soDienThoaiDaXacThuc;
+    private Date ngayXacThucSoDienThoai;
     // ================== Constructors ==================
 
     public User() {
@@ -42,6 +45,7 @@ public class User {
         this.trangThaiHoatDong = true;
         this.provider = AuthProvider.LOCAL;
         this.rule = "user";
+        this.soDienThoaiDaXacThuc = false;
     }
 
     // ================== Getters & Setters ==================
@@ -171,6 +175,22 @@ public class User {
 
     public boolean isLocalUser() {
         return AuthProvider.LOCAL.equals(this.provider);
+    }
+
+    public Boolean getSoDienThoaiDaXacThuc() {
+        return soDienThoaiDaXacThuc;
+    }
+
+    public void setSoDienThoaiDaXacThuc(Boolean soDienThoaiDaXacThuc) {
+        this.soDienThoaiDaXacThuc = soDienThoaiDaXacThuc;
+    }
+
+    public Date getNgayXacThucSoDienThoai() {
+        return ngayXacThucSoDienThoai;
+    }
+
+    public void setNgayXacThucSoDienThoai(Date ngayXacThucSoDienThoai) {
+        this.ngayXacThucSoDienThoai = ngayXacThucSoDienThoai;
     }
 
     @Override

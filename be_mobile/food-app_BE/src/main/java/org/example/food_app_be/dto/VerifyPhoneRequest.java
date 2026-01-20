@@ -1,6 +1,6 @@
 package org.example.food_app_be.dto;
 
-public class VerifyOtpRequest {
+public class VerifyPhoneRequest {
     private String idToken; // Firebase ID Token
 
     public String getIdToken() {
